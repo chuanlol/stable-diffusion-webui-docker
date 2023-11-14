@@ -1,0 +1,11 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\data",
+    "\\output",
+    "\\services",
+    "\\services\\AUTOMATIC1111"
+  ],
+  "SelectedNode": "\\services\\AUTOMATIC1111\\Dockerfile",
+  "PreviewInSolutionExplorer": false
+}
