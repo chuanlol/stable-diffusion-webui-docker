@@ -25,6 +25,9 @@ RUN . /clone.sh generative-models https://github.com/Stability-AI/generative-mod
 # Clone sd-webui-reactor repository
 RUN . /clone.sh sd-webui-reactor https://github.com/Gourieff/sd-webui-reactor 4139d167ff1299a8450a3b4bcbc50dec6cd0690d
 
+# Clone gif2gif repository
+RUN . /clone.sh gif2gif https://github.com/LonicaMewinsky/gif2gif 5121851e3941c420253f3a20a0f8e49bed86f0bb
+
 FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
 
 ENV DEBIAN_FRONTEND=noninteractive PIP_PREFER_BINARY=1
@@ -34,6 +37,7 @@ ENV USE_CHINA_MIRROR=${USE_CHINA_MIRROR}
 # Use China mirror if specified
 RUN if [ "$USE_CHINA_MIRROR" = "true" ]; then \
         sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list; \
+        sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list; \
     fi
 
 RUN --mount=type=cache,target=/var/cache/apt \
@@ -83,6 +87,9 @@ RUN --mount=type=cache,target=/root/.cache/pip \
   PYTHONPATH=${ROOT} python ${ROOT}/extensions/sd-webui-reactor/install.py && \
   echo "CUDA" > ${ROOT}/extensions/sd-webui-reactor/last_device.txt
 
+RUN --mount=type=cache,target=/root/.cache/pip \
+  mv ${ROOT}/repositories/gif2gif ${ROOT}/extensions/
+
 COPY . /docker
 
 RUN sha256sum -c /docker/checksum.txt --status
@@ -96,7 +103,7 @@ RUN \
 
 WORKDIR ${ROOT}
 ENV NVIDIA_VISIBLE_DEVICES=all
-ENV CLI_ARGS="--xformers --no-half --theme dark"
+ENV CLI_ARGS="--api --xformers --no-half --theme dark"
 EXPOSE 7860
 ENTRYPOINT ["/docker/entrypoint.sh"]
 CMD python -u webui.py --listen --port 7860 ${CLI_ARGS}
